@@ -9,10 +9,13 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
+        String rutaProyecto = "file:///C:/Users/Usuario/Downloads/ProyectoIntegrador/uploads/";
+
         registry.addResourceHandler("/uploads/servicios/**")
-                .addResourceLocations("file:uploads/servicios/");
+                .addResourceLocations(rutaProyecto + "servicios/");
 
         registry.addResourceHandler("/uploads/chat/**")
-                .addResourceLocations("file:uploads/chat/");
+                .addResourceLocations(rutaProyecto + "chat/");
     }
 }

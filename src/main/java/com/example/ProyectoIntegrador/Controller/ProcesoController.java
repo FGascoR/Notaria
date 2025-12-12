@@ -24,7 +24,7 @@ public class ProcesoController {
     @Autowired private ReunionRepository reunionRepository;
     @Autowired private NotarioRepository notarioRepository;
 
-    private static final String UPLOAD_DIR = "uploads/chat/";
+    private static final String UPLOAD_DIR = "C:/Users/Usuario/Downloads/ProyectoIntegrador/uploads/chat/";
 
     @GetMapping("/cliente/{idTramite}")
     public String verProcesoCliente(@PathVariable Integer idTramite, Model model, Authentication auth) {

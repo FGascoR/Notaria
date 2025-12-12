@@ -1,338 +1,333 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notaría</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Panel de Gestión | Notaría Digital</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="/css/stylesPagina.css">
-    <style>
-        body {
-            padding-top: 76px;
-        }
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/stylesSistemaNotario.css}">
 
-        .navbar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1030;
-            transition: top 0.4s ease-in-out;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
+    <style>
+        /* (Estilos se mantienen igual) */
+        :root { --sidebar-bg: #1a252f; --sidebar-hover: #2c3e50; --gold: #d4af37; --text-light: #ecf0f1; --bg-main: #f8f9fa; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-main); overflow-x: hidden; }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: var(--text-light); height: 100vh; position: fixed; top: 0; left: 0; display: flex; flex-direction: column; box-shadow: 4px 0 10px rgba(0,0,0,0.1); z-index: 1000; padding-top: 1rem; }
+        .brand-section { text-align: center; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1rem; }
+        .brand-section h4 { font-weight: 600; color: var(--gold); letter-spacing: 1px; }
+        .nav-links { flex: 1; padding: 0 10px; }
+        .sidebar a { color: #bdc3c7; text-decoration: none; padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; display: flex; align-items: center; transition: all 0.3s ease; font-size: 0.95rem; }
+        .sidebar a i { width: 25px; margin-right: 10px; text-align: center; }
+        .sidebar a:hover, .sidebar a.active { background-color: var(--sidebar-hover); color: var(--gold); transform: translateX(5px); }
+        .sidebar a.active { border-left: 4px solid var(--gold); }
+        .logout-btn { margin: 20px; background-color: #c0392b; color: white !important; justify-content: center; font-weight: 500; border: none; width: calc(100% - 40px); padding: 10px; border-radius: 8px; transition: background 0.3s; }
+        .logout-btn:hover { background-color: #e74c3c !important; }
+        .content { margin-left: 260px; padding: 2rem; min-height: 100vh; }
+        .stat-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--gold); transition: transform 0.2s; }
+        .stat-card:hover { transform: translateY(-3px); }
+        .stat-icon { font-size: 2.5rem; color: #bdc3c7; opacity: 0.3; }
+        .stat-info h2 { font-size: 2.5rem; margin: 0; font-weight: 700; color: #2c3e50; }
+        .stat-info span { color: #7f8c8d; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .table-container { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: 2rem; }
+        .table-custom thead { background-color: #f8f9fa; color: #2c3e50; }
+        .table-custom th { font-weight: 600; border-bottom: 2px solid #eee; padding: 1rem; }
+        .table-custom td { padding: 1rem; vertical-align: middle; color: #555; }
+        .badge-custom { padding: 0.5em 0.8em; font-weight: 500; border-radius: 6px; }
+        .thumb-servicio { width: 45px; height: 45px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .btn-action { padding: 5px 10px; border-radius: 6px; }
+        section { display: none; }
+        section.active-section { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-
 <body>
 
-<nav id="mainNavbar" class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
-            <span class="navbar-toggler-icon"></span>
+<div class="sidebar">
+    <div class="brand-section">
+        <h4><i class="fas fa-balance-scale"></i> NOTARÍA</h4>
+        <small class="text-muted">Panel Administrativo</small>
+    </div>
+
+    <div class="nav-links">
+        <a href="#" onclick="mostrarSeccion('inicio')" id="linkInicio" class="active">
+            <i class="fas fa-home"></i> Inicio
+        </a>
+        <a href="#" onclick="mostrarSeccion('solicitudes')" id="linkSolicitudes">
+            <i class="fas fa-envelope-open-text"></i> Solicitudes
+            <span class="badge bg-danger ms-auto rounded-pill"
+                  th:if="${solicitudesPendientes != null and !solicitudesPendientes.empty}"
+                  th:text="${solicitudesPendientes.size()}"></span>
+        </a>
+        <a href="#" onclick="mostrarSeccion('tramites')" id="linkTramites">
+            <i class="fas fa-file-signature"></i> Trámites en Curso
+        </a>
+        <a href="#" onclick="mostrarSeccion('historial')" id="linkHistorial">
+            <i class="fas fa-history"></i> Historial
+        </a>
+        <a href="#" onclick="mostrarSeccion('servicios')" id="linkServicios">
+            <i class="fas fa-concierge-bell"></i> Servicios
+        </a>
+        <a href="#" onclick="mostrarSeccion('clientes')" id="linkClientes">
+            <i class="fas fa-users"></i> Clientes
+        </a>
+    </div>
+
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" class="logout-btn">
+            <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
         </button>
-
-        <div class="collapse navbar-collapse" id="navbarNavDropdown">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link active" href="#">Inicio</a></li>
-
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Servicios</a>
-                    <ul class="dropdown-menu">
-                        <li th:each="servicio : ${servicios}">
-                            <a class="dropdown-item" th:text="${servicio.nombre}"
-                               th:href="@{'#servicio-' + ${servicio.idServicio}}"></a>
-                        </li>
-                    </ul>
-                </li>
-
-                <li class="nav-item"><a class="nav-link" href="#notario">Notario</a></li>
-
-                <li class="nav-item ms-3" sec:authorize="!isAuthenticated()">
-                    <a href="/Login" class="btn btn-warning">Inicio de Sesión</a>
-                </li>
-
-                <li class="nav-item ms-3" sec:authorize="isAuthenticated()">
-                    <form th:action="@{/logout}" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-gold">Cerrar Sesión</button>
-                    </form>
-                </li>
-
-                <li class="nav-item ms-3" sec:authorize="hasRole('CLIENTE')">
-                    <a href="#" class="nav-link btn-outline-gold" onclick="openNav()">Mis Solicitudes</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
-
-<div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel">
-    <div class="carousel-inner">
-        <div class="carousel-item active">
-            <img src="https://images.pexels.com/photos/8112201/pexels-photo-8112201.jpeg" class="d-block w-100" alt="Sala de atención">
-            <div class="carousel-caption d-none d-md-block">
-                <h2>Bienvenido a la Notaría Virtual</h2>
-                <p>Trámites rápidos, seguros y en línea</p>
-                <a href="#servicios" class="btn btn-gold btn-lg">Ver Servicios</a>
-            </div>
-        </div>
-    </div>
+    </form>
 </div>
 
-<div class="divisor"></div>
+<div class="content">
 
-<div class="container my-5" id="servicios">
-    <h2 class="text-center mb-4">Servicios Disponibles</h2>
+    <section id="inicio" class="active-section">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark">Bienvenido, Notario</h2>
+                <p class="text-muted">Resumen de la actividad del día.</p>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-light text-dark border p-2"><i class="far fa-calendar-alt"></i> Hoy</span>
+            </div>
+        </div>
 
-    <div th:if="${param.solicitud}" class="alert alert-success text-center">¡Solicitud enviada correctamente!</div>
-    <div th:if="${param.pago}" class="alert alert-success text-center">¡Pago realizado con éxito! El trámite procederá.</div>
-
-    <div class="row g-4">
-        <div class="col-md-4 d-flex" th:each="servicio : ${servicios}">
-            <div class="card shadow flex-fill">
-                <img class="card-img-top"
-                     th:src="@{'/uploads/servicios/' + ${servicio.img}}"
-                     alt="Imagen del servicio"
-                     style="height:230px;object-fit:cover;">
-                <div class="card-body d-flex flex-column justify-content-between text-center">
-                    <div>
-                        <h4 class="card-title" th:text="${servicio.nombre}"></h4>
-                        <p class="card-text" th:text="${servicio.descripcion}"></p>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <span class="text-warning">Solicitudes Pendientes</span>
+                        <h2 th:text="${solicitudesPendientes != null ? solicitudesPendientes.size() : 0}">0</h2>
                     </div>
-                    <div>
-                        <p class="card-text fw-bold text-success mb-3">
-                            S/ <span th:text="${#numbers.formatDecimal(servicio.costo, 1, 2)}"></span>
-                        </p>
-                        <button class="btn btn-gold w-100 fw-bold"
-                                th:attr="onclick=|solicitarServicio('${servicio.idServicio}', '${servicio.nombre}')|">
-                            Solicitar trámite
-                        </button>
+                    <div class="stat-icon"><i class="fas fa-inbox"></i></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="stat-card" style="border-left-color: #2ecc71;">
+                    <div class="stat-info">
+                        <span class="text-success">Trámites Activos</span>
+                        <h2 th:text="${tramitesEnProceso != null ? tramitesEnProceso.size() : 0}">0</h2>
                     </div>
+                    <div class="stat-icon"><i class="fas fa-tasks"></i></div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </section>
 
-<div class="divisor"></div>
-
-<section id="notario" class="sectionNotario">
-    <div class="forma-borde"></div>
-    <div class="forma">
-        <img src="img/notario.jpg" class="imagenfo" alt="Foto del Notario">
-    </div>
-
-    <div class="contenidoNotario">
-        <h2><em>Nuestro Notario</em></h2><hr>
-
-        <p class="pr">
-            El <strong>Dr. Luis Bances</strong> es un profesional con más de 20 años de trayectoria garantizando la seguridad jurídica en cada trámite. Egresado con honores y especializado en Derecho Civil y Registral, lidera nuestra notaría con un enfoque moderno y eficiente.
-            <br><br>
-            Su compromiso es brindar confianza y transparencia, combinando la ética tradicional con herramientas digitales innovadoras para agilizar sus procesos legales.
-        </p>
-
-        <div class="mt-4">
-        </div>
-    </div>
-</section>
-<div class="divisor"></div>
-
-<footer class="footer-notaria text-white mt-auto pt-5 pb-3">
-    <div class="container">
-        <div class="row align-items-start">
-            <div class="col-md-3 mb-4 text-center text-md-start">
-                <div class="mb-2" style="font-size: 2rem; color: #daa520;">
-                    <i class="bi bi-building-fill-check"></i>
-                </div>
-                <p class="small opacity-75">Notaría & Servicios Legales</p>
-            </div>
-
-            <div class="col-md-3 mb-4">
-                <h6 class="footer-title">Información</h6>
-                <ul class="list-unstyled small footer-list">
-                    <li><a href="#" class="footer-link">Inicio</a></li>
-                    <li><a href="#" class="footer-link">Servicios Notariales</a></li>
-                    <li><a href="#" class="footer-link">Trámites</a></li>
-                    <li><a href="#" class="footer-link">Política de Privacidad</a></li>
-                </ul>
-            </div>
-
-            <div class="col-md-3 mb-4">
-                <h6 class="footer-title">Contáctanos</h6>
-                <ul class="list-unstyled small footer-list">
-                    <li><i class="bi bi-geo-alt-fill me-2 text-gold"></i> Av. Principal 123, Lima</li>
-                    <li><i class="bi bi-envelope-fill me-2 text-gold"></i> contacto@notaria.com</li>
-                    <li><i class="bi bi-telephone-fill me-2 text-gold"></i> (01) 555-0909</li>
-                </ul>
-            </div>
-
-            <div class="col-md-3 mb-4 text-center text-md-start">
-                <h6 class="footer-title">Síguenos</h6>
-                <div class="d-flex gap-3 mt-2 justify-content-center justify-content-md-start">
-                    <a href="#" class="social-icon"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
-                    <a href="#" class="social-icon"><i class="bi bi-youtube"></i></a>
-                    <a href="#" class="social-icon"><i class="bi bi-whatsapp"></i></a>
-                </div>
+    <section id="solicitudes">
+        <h3 class="mb-3 fw-bold text-dark"><i class="fas fa-inbox text-warning me-2"></i> Bandeja de Entrada</h3>
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table table-custom table-hover">
+                    <thead>
+                    <tr><th>#ID</th> <th>Fecha</th> <th>Cliente</th> <th>Trámite</th> <th>Detalle</th> <th class="text-center">Acciones</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${solicitudesPendientes == null or solicitudesPendientes.empty}">
+                        <td colspan="6" class="text-center p-5 text-muted">No hay solicitudes pendientes.</td>
+                    </tr>
+                    <tr th:each="t : ${solicitudesPendientes}">
+                        <td class="fw-bold text-muted">#<span th:text="${t.idTramite}"></span></td>
+                        <td th:text="${t.fechaInicio}"></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-light rounded-circle p-2 me-2"><i class="fas fa-user"></i></div>
+                                <div>
+                                    <span class="fw-bold d-block" th:text="${t.cliente.nombre} + ' ' + ${t.cliente.apellido}"></span>
+                                    <small class="text-muted" th:text="${t.cliente.dni}"></small>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge bg-primary bg-opacity-10 text-primary" th:text="${t.servicio.nombre}"></span></td>
+                        <td class="text-truncate" style="max-width: 200px;" th:text="${t.observaciones}"></td>
+                        <td class="text-center">
+                            <button class="btn btn-success btn-sm me-1" title="Aceptar"
+                                    th:attr="onclick=|confirmarAccion('@{/tramite/cambiarEstado/' + ${t.idTramite} + '/aceptado'}', '¿Aceptar solicitud?', 'El trámite pasará a estado Aceptado.')|">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" title="Rechazar"
+                                    th:attr="onclick=|confirmarAccion('@{/tramite/cambiarEstado/' + ${t.idTramite} + '/rechazado'}', '¿Rechazar solicitud?', 'Esta acción no se puede deshacer.', 'warning')|">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
+    </section>
 
-        <hr class="footer-divider">
-        <p class="text-center small mt-3 mb-0">Notaría Digital – Todos los derechos reservados © 2025</p>
-    </div>
-</footer>
-
-<div id="mySidebar" class="sidebar-right">
-    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-    <div class="sidebar-content">
-        <h3>Mis Solicitudes</h3>
-        <hr>
-        <div th:if="${misTramites == null or misTramites.empty}">
-            <p class="text-muted">No tienes solicitudes recientes.</p>
+    <section id="tramites">
+        <h3 class="mb-3 fw-bold text-dark"><i class="fas fa-briefcase text-success me-2"></i> Gestión de Trámites</h3>
+        <div class="alert alert-light border-start border-4 border-info shadow-sm">
+            <i class="fas fa-info-circle text-info me-2"></i> Gestione aquí los trámites aceptados. El chat se habilitará cuando el cliente realice el pago.
         </div>
 
-        <div th:each="t : ${misTramites}" class="tramite-card">
-            <h5 th:text="${t.servicio.nombre}" style="color: #daa520;"></h5>
-            <small class="text-light" th:text="${t.fechaInicio}"></small><br>
+        <div class="table-container">
+            <table class="table table-custom table-hover">
+                <thead><tr><th>#ID</th> <th>Cliente</th> <th>Servicio</th> <th>Estado Pago</th> <th class="text-center">Sala de Proceso</th></tr></thead>
+                <tbody>
+                <tr th:if="${tramitesEnProceso == null or tramitesEnProceso.empty}"><td colspan="5" class="text-center p-5 text-muted">No hay trámites en curso.</td></tr>
+                <tr th:each="t : ${tramitesEnProceso}">
+                    <td class="fw-bold">#<span th:text="${t.idTramite}"></span></td>
+                    <td th:text="${t.cliente.nombre} + ' ' + ${t.cliente.apellido}"></td>
+                    <td th:text="${t.servicio.nombre}"></td>
+                    <td>
+                        <span th:if="${estadoPagos != null and estadoPagos.get(t.idTramite) == true}" class="badge bg-success"><i class="fas fa-check-circle me-1"></i> PAGADO</span>
+                        <span th:unless="${estadoPagos != null and estadoPagos.get(t.idTramite) == true}" class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i> PENDIENTE</span>
+                    </td>
+                    <td class="text-center">
+                        <div th:if="${estadoPagos != null and estadoPagos.get(t.idTramite) == true}">
+                            <a th:href="@{'/proceso/notario/' + ${t.idTramite}}" class="btn btn-primary btn-sm shadow-sm"><i class="fas fa-comments me-1"></i> Abrir Chat</a>
+                        </div>
+                        <div th:unless="${estadoPagos != null and estadoPagos.get(t.idTramite) == true}">
+                            <button class="btn btn-light text-muted btn-sm border" disabled><i class="fas fa-lock me-1"></i> Bloqueado</button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 
-            Estado:
-            <strong th:text="${t.estado}"
-                    th:class="${t.estado.name() == 'aceptado' ? 'text-success' : (t.estado.name() == 'rechazado' ? 'text-danger' : 'text-warning')}">
-            </strong>
+    <section id="historial">
+        <h3 class="mb-3 fw-bold text-dark"><i class="fas fa-history text-secondary me-2"></i> Historial de Movimientos</h3>
+        <div class="table-container">
+            <table class="table table-custom table-hover">
+                <thead><tr><th>Fecha</th> <th>Trámite</th> <th>Cliente</th> <th>Estado</th> <th>Detalle</th></tr></thead>
+                <tbody>
+                <tr th:if="${historialCompleto == null or historialCompleto.empty}"><td colspan="5" class="text-center p-5 text-muted">Sin movimientos.</td></tr>
+                <tr th:each="h : ${historialCompleto}">
+                    <td><small class="text-muted" th:text="${#dates.format(h.fecha, 'dd/MM/yyyy HH:mm')}"></small></td>
+                    <td class="fw-bold">#<span th:text="${h.tramite.idTramite}"></span></td>
+                    <td th:text="${h.tramite.cliente.nombre} + ' ' + ${h.tramite.cliente.apellido}"></td>
+                    <td><span class="badge bg-secondary" th:text="${h.estado}"></span></td>
+                    <td class="text-muted small" th:text="${h.comentario}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 
-            <p class="mt-2 text-light" style="font-size: 0.9em;">
-                Obs: <span th:text="${t.observaciones}"></span>
-            </p>
+    <section id="servicios">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="fw-bold text-dark"><i class="fas fa-concierge-bell text-secondary me-2"></i> Catálogo de Servicios</h3>
 
-            <div th:if="${t.estado.name() == 'aceptado'}" class="mt-2">
-                <div th:unless="${estadoPagos != null and estadoPagos.containsKey(t.idTramite) and estadoPagos.get(t.idTramite)}">
-                    <button class="btn btn-success btn-sm w-100"
-                            th:attr="onclick=|abrirModalPago('${t.idTramite}', '${t.servicio.nombre}', '${t.servicio.costo}')|">
-                        Realizar Pago 💳
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarServicio">
+                    <i class="fas fa-plus me-2"></i> Nuevo
+                </button>
+
+                <div class="dropdown">
+                    <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-file-export me-1"></i> Exportar
                     </button>
-                </div>
-
-                <div th:if="${estadoPagos != null and estadoPagos.containsKey(t.idTramite) and estadoPagos.get(t.idTramite)}">
-                    <div class="alert alert-success p-1 text-center mb-2" style="font-size: 0.8rem;">
-                        <i class="bi bi-check-circle-fill"></i> ¡Pago Confirmado!
-                    </div>
-                    <a th:href="@{'/proceso/cliente/' + ${t.idTramite}}"
-                       class="btn btn-info btn-sm fw-bold text-white w-100">
-                        Ir al Panel de Trámite 📂
-                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{/servicios/exportar-excel}"><i class="fas fa-file-excel text-success me-2"></i> Excel</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-file-pdf text-danger me-2"></i> PDF (Próximamente)</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
-    </div>
+
+        <div class="table-container">
+            <table class="table table-custom align-middle">
+                <thead><tr><th>Img</th> <th>Nombre</th> <th>Descripción</th> <th>Costo</th> <th class="text-center">Acciones</th></tr></thead>
+                <tbody>
+                <tr th:each="servicio : ${servicios}">
+                    <td>
+                        <img th:if="${servicio.img != null}" th:src="@{'/uploads/servicios/' + ${servicio.img}}" class="thumb-servicio">
+                        <div th:unless="${servicio.img != null}" class="thumb-servicio d-flex align-items-center justify-content-center bg-light text-muted"><i class="fas fa-image"></i></div>
+                    </td>
+                    <td class="fw-bold text-dark" th:text="${servicio.nombre}"></td>
+                    <td class="text-muted small text-truncate" style="max-width: 250px;" th:text="${servicio.descripcion}"></td>
+                    <td class="text-success fw-bold" th:text="'S/ ' + ${servicio.costo}"></td>
+                    <td class="text-center">
+                        <button class="btn btn-outline-warning btn-action me-1" th:attr="onclick=|editarServicio(${servicio.idServicio})|" title="Editar">
+                            <i class="fas fa-pen"></i>
+                        </button>
+
+                        <button class="btn btn-outline-danger btn-action"
+                                th:attr="onclick=|confirmarEliminacion('@{/servicios/eliminar/' + ${servicio.idServicio}}')|"
+                                title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="clientes">
+        <h3 class="mb-3 fw-bold text-dark"><i class="fas fa-users text-info me-2"></i> Directorio de Clientes</h3>
+        <div class="table-container">
+            <table class="table table-custom table-striped">
+                <thead><tr><th>ID</th> <th>Nombre Completo</th> <th>DNI</th> <th class="text-center">Usuario Sistema</th></tr></thead>
+                <tbody>
+                <tr th:each="cliente : ${clientes}">
+                    <td th:text="${cliente.idCliente}"></td>
+                    <td class="fw-bold" th:text="${cliente.nombre} + ' ' + ${cliente.apellido}"></td>
+                    <td><span class="badge bg-light text-dark border"><i class="far fa-id-card me-1"></i> <span th:text="${cliente.dni}"></span></span></td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-info text-white" th:attr="onclick=|verUsuario(${cliente.idCliente})|">
+                            <i class="fas fa-eye me-1"></i> Ver Info
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
 </div>
 
-<div class="modal fade" id="modalSolicitud" tabindex="-1">
+<div class="modal fade" id="modalAgregarServicio" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form th:action="@{/tramite/solicitar}" method="post">
-                <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title">Solicitar Trámite</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
+            <form th:action="@{/servicios/guardar}" method="post" enctype="multipart/form-data">
+                <div class="modal-header bg-dark text-white"><h5 class="modal-title">Nuevo Servicio</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
-                    <input type="hidden" id="modalIdServicio" name="idServicio">
-                    <h5 id="modalNombreServicio" class="mb-3 text-gold"></h5>
-                    <div class="mb-3">
-                        <label class="form-label">Describa lo que necesita:</label>
-                        <textarea class="form-control" name="descripcion" rows="4" required placeholder="Ej: Necesito legalizar una copia de mi título..."></textarea>
-                    </div>
+                    <div class="mb-3"><label>Imagen</label><input type="file" class="form-control" name="imagenArchivo" accept="image/*" required></div>
+                    <div class="mb-3"><label>Nombre</label><input type="text" class="form-control" name="nombre" required></div>
+                    <div class="mb-3"><label>Descripción</label><textarea class="form-control" name="descripcion" required></textarea></div>
+                    <div class="mb-3"><label>Costo</label><input type="number" class="form-control" step="0.01" name="costo" required></div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-gold">Enviar Solicitud</button>
-                </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-primary">Guardar</button></div>
             </form>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="modalPago" tabindex="-1" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content overflow-hidden">
-            <div class="modal-body p-0">
-                <div class="row g-0">
-                    <div class="col-md-4 bg-light p-4 d-flex flex-column justify-content-between border-end">
-                        <div>
-                            <h5 class="text-secondary mb-4">Resumen de Compra</h5>
-                            <p class="text-muted small mb-1">Servicio</p>
-                            <h6 class="fw-bold mb-3" id="pagoNombreServicio">Nombre Servicio</h6>
-
-                            <p class="text-muted small mb-1">Costo del Trámite</p>
-                            <h3 class="text-dark fw-bold">S/ <span id="pagoMonto">0.00</span></h3>
-                        </div>
-                        <div class="mt-4">
-                            <div class="small text-muted"><i class="bi bi-shield-lock-fill text-success"></i> Pago 100% Seguro</div>
-                            <div class="small text-muted mt-1">Transacción encriptada</div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-8 p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="mb-0">Pasarela de Pago</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-
-                        <form th:action="@{/pago/procesar}" method="post" id="formPagoReal" onsubmit="return simularProcesamiento(event)">
-                            <input type="hidden" id="pagoIdTramite" name="idTramite">
-                            <input type="hidden" id="inputMetodoPago" name="metodoPago" value="TARJETA">
-
-                            <div class="mb-4">
-                                <label class="form-label text-muted small fw-bold">SELECCIONE MÉTODO</label>
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-outline-secondary flex-fill active-method" onclick="seleccionarMetodo('TARJETA', this)">
-                                        <i class="bi bi-credit-card-2-front"></i> Tarjeta
-                                    </button>
-                                    <button type="button" class="btn btn-outline-secondary flex-fill" onclick="seleccionarMetodo('YAPE', this)">
-                                        <i class="bi bi-qr-code"></i> Yape / Plin
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div id="viewTarjeta" class="payment-view">
-                                <div class="mb-3">
-                                    <label class="form-label small">Número de Tarjeta</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-white"><i class="bi bi-credit-card"></i></span>
-                                        <input type="text" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19" required>
-                                    </div>
-                                </div>
-                                <div class="row g-2">
-                                    <div class="col-6">
-                                        <label class="form-label small">Expiración (MM/YY)</label>
-                                        <input type="text" class="form-control" placeholder="MM/YY" maxlength="5" required>
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="form-label small">CVV</label>
-                                        <input type="password" class="form-control" placeholder="123" maxlength="3" required>
-                                    </div>
-                                </div>
-                                <div class="mb-3 mt-3">
-                                    <label class="form-label small">Titular de la Tarjeta</label>
-                                    <input type="text" class="form-control" placeholder="Como aparece en la tarjeta" required>
-                                </div>
-                            </div>
-
-                            <div id="viewYape" class="payment-view d-none text-center py-3">
-                                <div class="bg-white p-3 border rounded d-inline-block mb-3">
-                                    <i class="bi bi-qr-code-scan" style="font-size: 5rem; color: #720e9e;"></i>
-                                </div>
-                                <p class="small text-muted">Escanea el código QR con tu aplicación.</p>
-                                <div class="alert alert-warning small py-1">
-                                    <i class="bi bi-info-circle"></i> Esperando confirmación del pago...
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn btn-gold w-100 py-2 mt-2 shadow-sm" id="btnPagar">
-                                <span id="textPagar">Pagar Ahora</span>
-                                <span id="spinnerPagar" class="spinner-border spinner-border-sm d-none" role="status"></span>
-                            </button>
-                        </form>
-                    </div>
+<div class="modal fade" id="modalEditarServicio" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form th:action="@{/servicios/editar}" method="post" enctype="multipart/form-data">
+                <div class="modal-header bg-warning text-dark"><h5 class="modal-title">Editar Servicio</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <input type="hidden" id="editIdServicio" name="idServicio">
+                    <div class="text-center mb-3"><img id="editPreview" src="" class="rounded" style="width:80px; height:80px; object-fit:cover; border:1px solid #ddd;"></div>
+                    <div class="mb-3"><label>Cambiar Imagen</label><input type="file" class="form-control" name="imagenArchivo"></div>
+                    <div class="mb-3"><label>Nombre</label><input type="text" class="form-control" id="editNombre" name="nombre" required></div>
+                    <div class="mb-3"><label>Descripción</label><textarea class="form-control" id="editDescripcion" name="descripcion" required></textarea></div>
+                    <div class="mb-3"><label>Costo</label><input type="number" class="form-control" id="editCosto" name="costo" step="0.01" required></div>
                 </div>
+                <div class="modal-footer"><button type="submit" class="btn btn-warning fw-bold">Actualizar</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalUsuarioCliente" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white"><h5 class="modal-title">Info Usuario</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body text-center">
+                <div class="display-1 text-muted mb-2"><i class="fas fa-user-circle"></i></div>
+                <p><strong>Usuario:</strong> <span id="usuarioNombre"></span></p>
+                <p class="text-muted small">ID Sistema: <span id="usuarioId"></span></p>
             </div>
         </div>
     </div>
@@ -342,22 +337,17 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script th:inline="javascript">
+    // 1. OBTENER LA RUTA BASE (/app/)
+    const contextPath = /*[[@{/}]]*/ '/';
+
     let lastScrollTop = 0;
     const navbar = document.getElementById("mainNavbar");
 
     window.addEventListener("scroll", function() {
         let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-        if (scrollTop === 0) {
-            navbar.style.top = "0";
-        }
-        else if (scrollTop < lastScrollTop) {
-            navbar.style.top = "0";
-        }
-        else {
-            navbar.style.top = "-80px";
-        }
-
+        if (scrollTop === 0) { navbar.style.top = "0"; }
+        else if (scrollTop < lastScrollTop) { navbar.style.top = "0"; }
+        else { navbar.style.top = "-80px"; }
         lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
     });
 
@@ -370,10 +360,12 @@
     }
 
     function solicitarServicio(id, nombre) {
+        // Obtenemos la autenticación desde Thymeleaf
         var isAuthenticated = /*[[${#authorization.expression('isAuthenticated()')}]]*/ false;
 
         if (!isAuthenticated) {
-            window.location.href = '/Login';
+            // CORRECCIÓN: Usar contextPath para redirigir al Login correcto
+            window.location.href = contextPath + 'Login';
             return;
         }
 
@@ -386,20 +378,22 @@
         document.getElementById('pagoIdTramite').value = id;
         document.getElementById('pagoNombreServicio').innerText = nombre;
         document.getElementById('pagoMonto').innerText = parseFloat(costo).toFixed(2);
-        new bootstrap.Modal(document.getElementById('modalPago')).show();
-    }
 
-    function abrirModalPago(id, nombre, costo) {
-        document.getElementById('pagoIdTramite').value = id;
-        document.getElementById('pagoNombreServicio').innerText = nombre;
-        document.getElementById('pagoMonto').innerText = parseFloat(costo).toFixed(2);
-
-        seleccionarMetodo('TARJETA', document.querySelector('.active-method'));
+        // Aseguramos que haya un botón activo antes de intentar seleccionarlo
+        const activeBtn = document.querySelector('.active-method');
+        if(activeBtn) {
+            seleccionarMetodo('TARJETA', activeBtn);
+        } else {
+            // Fallback si no encuentra el botón
+            seleccionarMetodo('TARJETA', document.querySelector('.btn-outline-secondary'));
+        }
 
         new bootstrap.Modal(document.getElementById('modalPago')).show();
     }
 
     function seleccionarMetodo(metodo, btn) {
+        if(!btn) return; // Protección
+
         document.getElementById('inputMetodoPago').value = metodo;
 
         document.querySelectorAll('.d-flex.gap-2 button').forEach(b => {
@@ -437,6 +431,7 @@
 
         return false;
     }
+
     document.addEventListener("DOMContentLoaded", () => {
         const params = new URLSearchParams(window.location.search);
 
@@ -463,12 +458,13 @@
                 icon: 'success',
                 confirmButtonColor: '#b8860b',
                 confirmButtonText: 'Entendido',
-                backdrop: `rgba(0,0,0,0.4) url("/img/confetti.gif") left top no-repeat`
+                // Corrección de ruta de imagen (opcional)
+                backdrop: `rgba(0,0,0,0.4) left top no-repeat`
             });
             window.history.replaceState({}, document.title, window.location.pathname);
         }
     });
-
 </script>
+
 </body>
 </html>

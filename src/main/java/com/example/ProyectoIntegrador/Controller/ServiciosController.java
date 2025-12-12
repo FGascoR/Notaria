@@ -24,7 +24,7 @@ import java.util.UUID;
 @RequestMapping("/servicios")
 public class ServiciosController {
 
-    private static final String UPLOAD_DIR = "/app/uploads/servicios/"; 
+    private static final String UPLOAD_DIR = "C:/Users/Usuario/Downloads/ProyectoIntegrador/uploads/servicios/";
     @Autowired
     private ServicioRepository servicioRepository;
 
