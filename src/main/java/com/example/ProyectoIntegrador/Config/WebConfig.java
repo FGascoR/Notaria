@@ -10,12 +10,15 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
-        String rutaProyecto = "file:///C:/Users/Usuario/Downloads/ProyectoIntegrador/uploads/";
+        String rutaBase = "file:///C:/Users/Usuario/Downloads/ProyectoIntegrador/uploads/";
 
         registry.addResourceHandler("/uploads/servicios/**")
-                .addResourceLocations(rutaProyecto + "servicios/");
+                .addResourceLocations(rutaBase + "servicios/");
 
         registry.addResourceHandler("/uploads/chat/**")
-                .addResourceLocations(rutaProyecto + "chat/");
+                .addResourceLocations(rutaBase + "chat/");
+
+        registry.addResourceHandler("/**")
+                .addResourceLocations("classpath:/static/");
     }
 }

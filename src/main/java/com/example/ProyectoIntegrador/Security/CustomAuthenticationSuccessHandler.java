@@ -29,7 +29,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             return;
         }
 
-        // CORRECCIÓN: Agregar el "Context Path" (/app) antes de la URL destino
+
         String contextPath = request.getContextPath();
         redirectStrategy.sendRedirect(request, response, contextPath + targetUrl);
     }
@@ -37,11 +37,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     protected String determineTargetUrl(Authentication authentication) {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
-        if (authorities.stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_NOTARIO"))) {
+        if (authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_NOTARIO"))) {
             return "/SistemaNotario";
-        } else if (authorities.stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_CLIENTE"))) {
+        } else if (authorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_CLIENTE"))) {
             return "/Pagina";
         } else {
             return "/Login?error=true";
